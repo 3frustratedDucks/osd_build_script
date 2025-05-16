@@ -55,14 +55,14 @@ function Type-Write ($message, $color, $delay) {
 Write-Host ""
 Type-Write $loadingMessage1 $loadingColor $delay
 Start-Sleep -Seconds 1  # Optional pause between the lines
-Type-Write $loadingMessage2 $loadingColor $delay
-Start-Sleep -Seconds 1  # Optional pause between the lines
-$delay = 0 # Speeds up the final message about Field devices
-Type-Write $loadingMessage3 $loadingColor $delay
+
 write-host ""
 
 Write-Host  "Loading OSDCloud..." -ForegroundColor Green
 Write-Host ".................................................." -ForegroundColor Green
+
+# Ensure the share is accessible
+net use \\192.168.1.2\movie
 
 Start-OSDCloud -ImageFileURL "\\192.168.1.2\movie\win11.wim"
 
