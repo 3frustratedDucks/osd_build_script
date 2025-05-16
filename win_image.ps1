@@ -64,6 +64,6 @@ write-host ""
 Write-Host  "Loading OSDCloud..." -ForegroundColor Green
 Write-Host ".................................................." -ForegroundColor Green
 
-Start-OSDCloud -ImageFileFullName "\\192.168.1.2\movie\win11.wim"
+Start-OSDCloud -ImageFileURL "\\192.168.1.2\movie\win11.wim"
 
 #wpeutil reboot
