@@ -64,28 +64,19 @@ Write-Host ".................................................." -ForegroundColor
 # Ensure the share is accessible
 net use \\192.168.1.2\Harddisk
 
-# --- Create a RAM disk (8GB, R:) using diskpart ---
-Write-Host "Creating 8GB RAM disk as R:..." -ForegroundColor Yellow
-$diskpartScript = @"
-create vdisk file=X:\ramdisk.vhd type=expandable maximum=8192
-select vdisk file=X:\ramdisk.vhd
-attach vdisk
-create partition primary
-format fs=ntfs quick label=RAMDISK
-assign letter=R
-exit
-"@
-$scriptPath = "X:\create_ramdisk.txt"
-$diskpartScript | Set-Content -Path $scriptPath
-Start-Process diskpart -ArgumentList "/s $scriptPath" -Wait
+# Create 8GB RAM disk as R: using AIM Toolkit
+$aimPath = "\\192.168.1.2\Harddisk\dl\aim_cli.exe"
+Write-Host "Creating 8GB RAM disk as R: using AIM Toolkit..." -ForegroundColor Yellow
+Start-Process -FilePath $aimPath -ArgumentList '-a -s 8G -m R:' -Wait
+Start-Process -FilePath "format.com" -ArgumentList 'R: /FS:NTFS /Q /Y' -Wait
 
-# --- Copy the WIM to the RAM disk ---
-$wimSource = "\\192.168.1.2\Harddisk\movie\win11.wim"
+# Copy the WIM to the RAM disk
+$wimSource = "\\192.168.1.2\Harddisk\dl\win11.wim"
 $wimDest = "R:\win11.wim"
 Write-Host "Copying WIM from $wimSource to $wimDest..." -ForegroundColor Yellow
 Copy-Item $wimSource $wimDest
 
-# --- Deploy from RAM disk ---
+# Deploy from RAM disk
 Write-Host "Deploying Windows from RAM disk..." -ForegroundColor Green
 Start-OSDCloud -ImageFileFullName $wimDest
 
