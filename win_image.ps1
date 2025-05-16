@@ -64,22 +64,24 @@ Write-Host ".................................................." -ForegroundColor
 # Ensure the share is accessible
 net use \\192.168.1.2\Harddisk
 
-# --- Create a RAM disk (16GB, R:) ---
-Write-Host "Creating 16GB RAM disk as R:..." -ForegroundColor Yellow
-$ramDiskSize = 16GB
-$ramDiskPath = "X:\ramdisk.vhdx"
-$ramDriveLetter = "R"
-
-New-VHD -Path $ramDiskPath -SizeBytes $ramDiskSize -Dynamic | Out-Null
-Mount-VHD -Path $ramDiskPath | Out-Null
-$ramDisk = Get-Disk | Where-Object { $_.Location -like "*ramdisk.vhdx*" }
-Initialize-Disk -Number $ramDisk.Number -PartitionStyle MBR -PassThru | Out-Null
-New-Partition -DiskNumber $ramDisk.Number -UseMaximumSize -AssignDriveLetter | Out-Null
-Format-Volume -DriveLetter $ramDriveLetter -FileSystem NTFS -NewFileSystemLabel "RAMDISK" -Confirm:$false | Out-Null
+# --- Create a RAM disk (8GB, R:) using diskpart ---
+Write-Host "Creating 8GB RAM disk as R:..." -ForegroundColor Yellow
+$diskpartScript = @"
+create vdisk file=X:\ramdisk.vhd type=expandable maximum=8192
+select vdisk file=X:\ramdisk.vhd
+attach vdisk
+create partition primary
+format fs=ntfs quick label=RAMDISK
+assign letter=R
+exit
+"@
+$scriptPath = "X:\create_ramdisk.txt"
+$diskpartScript | Set-Content -Path $scriptPath
+Start-Process diskpart -ArgumentList "/s $scriptPath" -Wait
 
 # --- Copy the WIM to the RAM disk ---
 $wimSource = "\\192.168.1.2\Harddisk\movie\win11.wim"
-$wimDest = "$ramDriveLetter`:\win11.wim"
+$wimDest = "R:\win11.wim"
 Write-Host "Copying WIM from $wimSource to $wimDest..." -ForegroundColor Yellow
 Copy-Item $wimSource $wimDest
 
