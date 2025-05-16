@@ -62,8 +62,29 @@ Write-Host  "Loading OSDCloud..." -ForegroundColor Green
 Write-Host ".................................................." -ForegroundColor Green
 
 # Ensure the share is accessible
-net use \\192.168.1.2\Harddisk\movie
+net use \\192.168.1.2\Harddisk
 
-Start-OSDCloud -ImageFileURL "\\192.168.1.2\Harddisk\movie\win11.wim"
+# --- Create a RAM disk (16GB, R:) ---
+Write-Host "Creating 16GB RAM disk as R:..." -ForegroundColor Yellow
+$ramDiskSize = 16GB
+$ramDiskPath = "X:\ramdisk.vhdx"
+$ramDriveLetter = "R"
+
+New-VHD -Path $ramDiskPath -SizeBytes $ramDiskSize -Dynamic | Out-Null
+Mount-VHD -Path $ramDiskPath | Out-Null
+$ramDisk = Get-Disk | Where-Object { $_.Location -like "*ramdisk.vhdx*" }
+Initialize-Disk -Number $ramDisk.Number -PartitionStyle MBR -PassThru | Out-Null
+New-Partition -DiskNumber $ramDisk.Number -UseMaximumSize -AssignDriveLetter | Out-Null
+Format-Volume -DriveLetter $ramDriveLetter -FileSystem NTFS -NewFileSystemLabel "RAMDISK" -Confirm:$false | Out-Null
+
+# --- Copy the WIM to the RAM disk ---
+$wimSource = "\\192.168.1.2\Harddisk\movie\win11.wim"
+$wimDest = "$ramDriveLetter`:\win11.wim"
+Write-Host "Copying WIM from $wimSource to $wimDest..." -ForegroundColor Yellow
+Copy-Item $wimSource $wimDest
+
+# --- Deploy from RAM disk ---
+Write-Host "Deploying Windows from RAM disk..." -ForegroundColor Green
+Start-OSDCloud -ImageFileFullName $wimDest
 
 #wpeutil reboot
