@@ -61,11 +61,8 @@ write-host ""
 Write-Host  "Loading OSDCloud..." -ForegroundColor Green
 Write-Host ".................................................." -ForegroundColor Green
 
-# Map the UNC share to P:
-net use P: \\192.168.1.2\Harddisk\dl
-
-# Deploy from the mapped drive
-$wimSource = "P:\win11.wim"
+# Deploy from HTTP server
+$wimSource = "http://192.168.1.95:8080/Windows11_24H2_x64_Enterprise_en-gb.wim"
 Write-Host "Deploying Windows from $wimSource..." -ForegroundColor Green
 Start-OSDCloud -ImageFileURL $wimSource
 
