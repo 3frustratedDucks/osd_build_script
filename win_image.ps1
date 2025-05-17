@@ -57,7 +57,12 @@ try {
     }
 }
 catch {
-    Write-Host "ERROR: Failed to check system memory. Deployment will not proceed." -ForegroundColor Red
+    Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red
+    if ($_.InvocationInfo) {
+        Write-Host "At: $($_.InvocationInfo.PositionMessage)" -ForegroundColor Yellow
+    }
+    Write-Host "Full error record:"
+    Write-Host $_ -ForegroundColor DarkGray
     Write-Host "Press Enter to exit..."
     [void][System.Console]::ReadLine()
     exit
@@ -70,7 +75,12 @@ try {
     Start-OSDCloud -ImageFileURL $wimSource -ZTI
 }
 catch {
-    Write-Host "ERROR: Deployment failed. Please check the WIM source and network connection." -ForegroundColor Red
+    Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red
+    if ($_.InvocationInfo) {
+        Write-Host "At: $($_.InvocationInfo.PositionMessage)" -ForegroundColor Yellow
+    }
+    Write-Host "Full error record:"
+    Write-Host $_ -ForegroundColor DarkGray
     Write-Host "Press Enter to exit..."
     [void][System.Console]::ReadLine()
     exit
