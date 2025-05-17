@@ -64,6 +64,6 @@ Write-Host ".................................................." -ForegroundColor
 # Deploy from HTTP server
 $wimSource = "http://192.168.1.95:8080/Windows11_24H2_x64_Enterprise_en-gb.wim"
 Write-Host "Deploying Windows from $wimSource..." -ForegroundColor Green
-Start-OSDCloud -ImageFileURL $wimSource
+Start-OSDCloud -ImageFileURL $wimSource -ZTI -Autopilot
 
 wpeutil reboot
