@@ -61,6 +61,27 @@ write-host ""
 Write-Host  "Loading OSDCloud..." -ForegroundColor Green
 Write-Host ".................................................." -ForegroundColor Green
 
+# Memory check before deployment
+$mem = (Get-CimInstance -ClassName Win32_ComputerSystem).TotalPhysicalMemory / 1GB
+$mem = [math]::Round($mem, 1)
+if ($mem -lt 31.5) {  # Allowing for slight reporting variance
+    Write-Host "WARNING: This device has only $mem GB of RAM. 32GB is expected!" -ForegroundColor Red
+    Write-Host "This may mean a memory module is missing or not seated correctly."
+    Write-Host ""
+    Write-Host "Press 1 to IGNORE and continue deployment." -ForegroundColor Yellow
+    Write-Host "Press 2 to SHUT DOWN the device." -ForegroundColor Yellow
+    $choice = Read-Host "Enter your choice (1=Ignore, 2=Shutdown)"
+    if ($choice -eq "2") {
+        Write-Host "Shutting down device..." -ForegroundColor Red
+        Stop-Computer
+        exit
+    }
+    Write-Host "Proceeding with deployment despite low memory..." -ForegroundColor Yellow
+}
+else {
+    Write-Host "Memory check passed: $mem GB detected." -ForegroundColor Green
+}
+
 # Deploy from HTTP server
 $wimSource = "http://192.168.1.95:8080/Windows11_24H2_x64_Enterprise_en-gb.wim"
 Write-Host "Deploying Windows from $wimSource..." -ForegroundColor Green
