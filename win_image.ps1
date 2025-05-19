@@ -93,7 +93,28 @@ if (-not $choice) { $choice = '1' }
 Write-Host ""
 if ($choice -eq '2') {
     Write-Host "You selected: Run a new Autopilot hash" -ForegroundColor Cyan
-    # Check if Get-WindowsAutoPilotInfo is available
+    # Check if Get-WindowsAutoPilotInfo is available, try to install if not
+    if (-not (Get-Command Get-WindowsAutoPilotInfo -ErrorAction SilentlyContinue)) {
+        Write-Host "Get-WindowsAutoPilotInfo module is not available. Attempting to install..." -ForegroundColor Yellow
+        try {
+            Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction SilentlyContinue
+            Install-Module -Name Get-WindowsAutoPilotInfo -Force -Scope CurrentUser -AllowClobber
+            Import-Module Get-WindowsAutoPilotInfo -Force
+            if (Get-Command Get-WindowsAutoPilotInfo -ErrorAction SilentlyContinue) {
+                Write-Host "Module installed successfully." -ForegroundColor Green
+            } else {
+                throw "Module installation did not succeed."
+            }
+        }
+        catch {
+            Write-Host "ERROR: Could not install Get-WindowsAutoPilotInfo module." -ForegroundColor Red
+            Write-Host "Full error record:"
+            Write-Host $_ -ForegroundColor DarkGray
+            Write-Host "Press Enter to exit..."
+            [void][System.Console]::ReadLine()
+            exit
+        }
+    }
     if (Get-Command Get-WindowsAutoPilotInfo -ErrorAction SilentlyContinue) {
         try {
             Write-Host "Running Get-WindowsAutoPilotInfo..." -ForegroundColor Green
