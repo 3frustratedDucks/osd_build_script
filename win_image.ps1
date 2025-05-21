@@ -144,7 +144,7 @@ if ($choice -eq '2') {
 }
 
 # Deploy from HTTP server with error handling
-$wimSource = "http://192.168.1.95:8080/Windows11_24H2_x64_Enterprise_en-gb.wim"
+$wimSource = "http://192.168.1.102:8080/Windows11_24H2_x64_Enterprise_en-gb.wim"
 try {
     Write-Host "Deploying Windows from $wimSource..." -ForegroundColor Green
     Start-OSDCloud -ImageFileURL $wimSource # -ZTI
