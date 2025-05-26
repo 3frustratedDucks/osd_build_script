@@ -68,31 +68,9 @@ catch {
     exit
 }
 
-# Prompt for next action
-Write-Host ""
-Write-Host "Select an option:" -ForegroundColor Yellow
-Write-Host "1: Install Windows 11 (default in 20 seconds)"
-Write-Host "2: Run a new Autopilot hash"
-Write-Host ""
-Write-Host "Waiting for input (20 seconds)..."
-
-$choice = $null
-$sw = [Diagnostics.Stopwatch]::StartNew()
-while ($sw.Elapsed.TotalSeconds -lt 20 -and !$choice) {
-    if ([System.Console]::KeyAvailable) {
-        $key = [System.Console]::ReadKey($true)
-        if ($key.KeyChar -eq '1' -or $key.KeyChar -eq '2') {
-            $choice = $key.KeyChar
-        }
-    }
-    Start-Sleep -Milliseconds 100
-}
-$sw.Stop()
-if (-not $choice) { $choice = '1' }
-
-Write-Host ""
-if ($choice -eq '2') {
-    Write-Host "You selected: Run a new Autopilot hash" -ForegroundColor Cyan
+# Function to run Autopilot hash (preserved for future use)
+function Run-AutopilotHash {
+    Write-Host "Running Get-WindowsAutoPilotInfo..." -ForegroundColor Green
     # Check if Get-WindowsAutoPilotInfo is available, try to install if not
     if (-not (Get-Command Get-WindowsAutoPilotInfo -ErrorAction SilentlyContinue)) {
         Write-Host "Get-WindowsAutoPilotInfo module is not available. Attempting to install..." -ForegroundColor Yellow
@@ -117,7 +95,6 @@ if ($choice -eq '2') {
     }
     if (Get-Command Get-WindowsAutoPilotInfo -ErrorAction SilentlyContinue) {
         try {
-            Write-Host "Running Get-WindowsAutoPilotInfo..." -ForegroundColor Green
             Get-WindowsAutoPilotInfo -OutputFile "X:\AutopilotHWID.csv"
             Write-Host "Autopilot hash saved to X:\AutopilotHWID.csv" -ForegroundColor Green
         }
@@ -136,12 +113,10 @@ if ($choice -eq '2') {
         [void][System.Console]::ReadLine()
         exit
     }
-    Write-Host "Press Enter to exit..."
-    [void][System.Console]::ReadLine()
-    exit
-} else {
-    Write-Host "Proceeding with Windows 11 installation..." -ForegroundColor Green
 }
+
+# Proceed with Windows 11 installation
+Write-Host "Proceeding with Windows 11 installation..." -ForegroundColor Green
 
 # Deploy from HTTP server with error handling
 $wimSource = "http://192.168.1.102:8080/Windows11_24H2_x64_Enterprise_en-gb.wim"
