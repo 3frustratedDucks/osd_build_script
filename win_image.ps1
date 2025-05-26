@@ -178,7 +178,7 @@ Write-Host "Proceeding with Windows 11 installation..." -ForegroundColor Green
 $wimSource = "http://192.168.1.102:8080/Windows11_24H2_x64_Enterprise_en-gb.wim"
 try {
     Write-Host "Deploying Windows from $wimSource..." -ForegroundColor Green
-    Start-OSDCloud -ImageFileURL $wimSource # -ZTI
+    Start-OSDCloud -ImageFileURL $wimSource -ZTI
 }
 catch {
     Write-Host "ERROR: $($_.Exception.Message)" -ForegroundColor Red
