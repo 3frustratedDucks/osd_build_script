@@ -1,3 +1,8 @@
+# Block WorldTimeAPI to prevent timeouts
+Write-Host "Adding WorldTimeAPI block to hosts file..." -ForegroundColor Yellow
+Add-Content -Path "X:\Windows\System32\drivers\etc\hosts" -Value "`n127.0.0.1 worldtimeapi.org" -Force
+Write-Host "WorldTimeAPI has been blocked successfully!" -ForegroundColor Green
+
 # Set OSDCloud Vars
 $Global:MyOSDCloud = [ordered]@{
     Restart = $false
