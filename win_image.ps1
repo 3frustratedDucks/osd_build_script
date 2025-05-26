@@ -3,6 +3,57 @@ Write-Host "Adding WorldTimeAPI block to hosts file..." -ForegroundColor Yellow
 Add-Content -Path "X:\Windows\System32\drivers\etc\hosts" -Value "`n127.0.0.1 worldtimeapi.org" -Force
 Write-Host "WorldTimeAPI has been blocked successfully!" -ForegroundColor Green
 
+# Check USB health
+Write-Host "`nChecking USB drive health..." -ForegroundColor Yellow
+$usbDrives = @('D:', 'E:')
+$issuesFound = $false
+
+foreach ($drive in $usbDrives) {
+    if (Test-Path $drive) {
+        Write-Host "`nChecking drive $drive..." -ForegroundColor Cyan
+        try {
+            # Unmount the drive
+            Write-Host "Unmounting $drive..." -ForegroundColor Yellow
+            $volume = Get-WmiObject -Class Win32_Volume | Where-Object { $_.DriveLetter -eq $drive }
+            if ($volume) {
+                $volume.DriveLetter = $null
+                $volume.Put()
+            }
+
+            # Run chkdsk with /f to check and fix issues
+            Write-Host "Running thorough check on $drive..." -ForegroundColor Yellow
+            $chkdskOutput = chkdsk $drive /f
+            Write-Host $chkdskOutput -ForegroundColor Gray
+
+            # Remount the drive
+            Write-Host "Remounting $drive..." -ForegroundColor Yellow
+            $volume.DriveLetter = $drive
+            $volume.Put()
+
+            if ($chkdskOutput -match "errors found") {
+                $issuesFound = $true
+                Write-Host "Issues were found and fixed on $drive" -ForegroundColor Yellow
+            } else {
+                Write-Host "No issues found on $drive" -ForegroundColor Green
+            }
+        }
+        catch {
+            Write-Host "Error checking $drive: $($_.Exception.Message)" -ForegroundColor Red
+            $issuesFound = $true
+        }
+    } else {
+        Write-Host "Drive $drive not found" -ForegroundColor Yellow
+    }
+}
+
+if ($issuesFound) {
+    Write-Host "`nUSB health check completed with issues. Please review the output above." -ForegroundColor Yellow
+    Write-Host "Press Enter to continue with installation..." -ForegroundColor Yellow
+    [void][System.Console]::ReadLine()
+} else {
+    Write-Host "`nUSB health check completed successfully!" -ForegroundColor Green
+}
+
 # Set OSDCloud Vars
 $Global:MyOSDCloud = [ordered]@{
     Restart = $false
