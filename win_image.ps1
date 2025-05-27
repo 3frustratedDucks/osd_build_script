@@ -5,7 +5,7 @@ Write-Host "WorldTimeAPI has been blocked successfully!" -ForegroundColor Green
 
 # Dynamically detect USB drives and check health
 Write-Host "`nDetecting USB drives for health check..." -ForegroundColor Yellow
-$usbDrives = (wmic logicaldisk where "drivetype=2" get deviceid | findstr ":" | ForEach-Object { $_.Trim() })
+$usbDrives = (wmic logicaldisk where "drivetype=2" get deviceid | ForEach-Object { $_.Trim() } | Where-Object { $_ -and $_ -ne "DeviceID" })
 $issuesFound = $false
 
 if (-not $usbDrives -or $usbDrives.Count -eq 0) {
