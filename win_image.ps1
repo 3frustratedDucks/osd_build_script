@@ -12,23 +12,10 @@ foreach ($driveLetter in $usbDrives) {
     if (Test-Path $driveLetter) {
         Write-Host "`nChecking drive $driveLetter..." -ForegroundColor Cyan
         try {
-            # Unmount the drive
-            Write-Host "Unmounting $driveLetter..." -ForegroundColor Yellow
-            $volume = Get-WmiObject -Class Win32_Volume | Where-Object { $_.DriveLetter -eq $driveLetter }
-            if ($volume) {
-                $volume.DriveLetter = $null
-                $volume.Put()
-            }
-
             # Run chkdsk with /f to check and fix issues
             Write-Host "Running thorough check on $driveLetter..." -ForegroundColor Yellow
             $chkdskOutput = chkdsk $driveLetter /f
             Write-Host $chkdskOutput -ForegroundColor Gray
-
-            # Remount the drive
-            Write-Host "Remounting $driveLetter..." -ForegroundColor Yellow
-            $volume.DriveLetter = $driveLetter
-            $volume.Put()
 
             if ($chkdskOutput -match "errors found") {
                 $issuesFound = $true
