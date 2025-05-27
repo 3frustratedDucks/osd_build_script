@@ -12,6 +12,7 @@ if (-not $usbDrives -or $usbDrives.Count -eq 0) {
     Write-Host "No USB drives detected!" -ForegroundColor Red
 } else {
     foreach ($driveLetter in $usbDrives) {
+        Write-Host "DEBUG: About to check drive: '$driveLetter'" -ForegroundColor Magenta
         if (Test-Path $driveLetter) {
             Write-Host "`nChecking drive $driveLetter..." -ForegroundColor Cyan
             try {
