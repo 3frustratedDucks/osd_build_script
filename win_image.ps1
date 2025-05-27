@@ -8,41 +8,41 @@ Write-Host "`nChecking USB drive health..." -ForegroundColor Yellow
 $usbDrives = @('D:', 'E:')
 $issuesFound = $false
 
-foreach ($drive in $usbDrives) {
-    if (Test-Path $drive) {
-        Write-Host "`nChecking drive $drive..." -ForegroundColor Cyan
+foreach ($driveLetter in $usbDrives) {
+    if (Test-Path $driveLetter) {
+        Write-Host "`nChecking drive $driveLetter..." -ForegroundColor Cyan
         try {
             # Unmount the drive
-            Write-Host "Unmounting $drive..." -ForegroundColor Yellow
-            $volume = Get-WmiObject -Class Win32_Volume | Where-Object { $_.DriveLetter -eq $drive }
+            Write-Host "Unmounting $driveLetter..." -ForegroundColor Yellow
+            $volume = Get-WmiObject -Class Win32_Volume | Where-Object { $_.DriveLetter -eq $driveLetter }
             if ($volume) {
                 $volume.DriveLetter = $null
                 $volume.Put()
             }
 
             # Run chkdsk with /f to check and fix issues
-            Write-Host "Running thorough check on $drive..." -ForegroundColor Yellow
-            $chkdskOutput = chkdsk $drive /f
+            Write-Host "Running thorough check on $driveLetter..." -ForegroundColor Yellow
+            $chkdskOutput = chkdsk $driveLetter /f
             Write-Host $chkdskOutput -ForegroundColor Gray
 
             # Remount the drive
-            Write-Host "Remounting $drive..." -ForegroundColor Yellow
-            $volume.DriveLetter = $drive
+            Write-Host "Remounting $driveLetter..." -ForegroundColor Yellow
+            $volume.DriveLetter = $driveLetter
             $volume.Put()
 
             if ($chkdskOutput -match "errors found") {
                 $issuesFound = $true
-                Write-Host "Issues were found and fixed on $drive" -ForegroundColor Yellow
+                Write-Host "Issues were found and fixed on $driveLetter" -ForegroundColor Yellow
             } else {
-                Write-Host "No issues found on $drive" -ForegroundColor Green
+                Write-Host "No issues found on $driveLetter" -ForegroundColor Green
             }
         }
         catch {
-            Write-Host "Error checking $drive: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "Error checking $driveLetter: $($_.Exception.Message)" -ForegroundColor Red
             $issuesFound = $true
         }
     } else {
-        Write-Host "Drive $drive not found" -ForegroundColor Yellow
+        Write-Host "Drive $driveLetter not found" -ForegroundColor Yellow
     }
 }
 
