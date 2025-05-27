@@ -3,6 +3,7 @@ Write-Host "Adding WorldTimeAPI block to hosts file..." -ForegroundColor Yellow
 Add-Content -Path "X:\Windows\System32\drivers\etc\hosts" -Value "`n127.0.0.1 worldtimeapi.org" -Force
 Write-Host "WorldTimeAPI has been blocked successfully!" -ForegroundColor Green
 
+<#
 # Dynamically detect USB drives and check health
 Write-Host "`nDetecting USB drives for health check..." -ForegroundColor Yellow
 $usbDrives = (wmic logicaldisk where "drivetype=2" get deviceid | ForEach-Object { $_.Trim() } | Where-Object { $_ -and $_ -ne "DeviceID" })
@@ -45,6 +46,7 @@ if ($issuesFound) {
 } else {
     Write-Host "`nUSB health check completed successfully!" -ForegroundColor Green
 }
+#>
 
 # Set OSDCloud Vars
 $Global:MyOSDCloud = [ordered]@{
