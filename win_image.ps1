@@ -3,33 +3,37 @@ Write-Host "Adding WorldTimeAPI block to hosts file..." -ForegroundColor Yellow
 Add-Content -Path "X:\Windows\System32\drivers\etc\hosts" -Value "`n127.0.0.1 worldtimeapi.org" -Force
 Write-Host "WorldTimeAPI has been blocked successfully!" -ForegroundColor Green
 
-# Check USB health
-Write-Host "`nChecking USB drive health..." -ForegroundColor Yellow
-$usbDrives = @('D:', 'E:')
+# Dynamically detect USB drives and check health
+Write-Host "`nDetecting USB drives for health check..." -ForegroundColor Yellow
+$usbDrives = (wmic logicaldisk where "drivetype=2" get deviceid | findstr ":" | ForEach-Object { $_.Trim() })
 $issuesFound = $false
 
-foreach ($driveLetter in $usbDrives) {
-    if (Test-Path $driveLetter) {
-        Write-Host "`nChecking drive $driveLetter..." -ForegroundColor Cyan
-        try {
-            # Run chkdsk with /f to check and fix issues
-            Write-Host "Running thorough check on $driveLetter..." -ForegroundColor Yellow
-            $chkdskOutput = chkdsk $driveLetter /f
-            Write-Host $chkdskOutput -ForegroundColor Gray
+if (-not $usbDrives -or $usbDrives.Count -eq 0) {
+    Write-Host "No USB drives detected!" -ForegroundColor Red
+} else {
+    foreach ($driveLetter in $usbDrives) {
+        if (Test-Path $driveLetter) {
+            Write-Host "`nChecking drive $driveLetter..." -ForegroundColor Cyan
+            try {
+                # Run chkdsk with /f to check and fix issues
+                Write-Host "Running thorough check on $driveLetter..." -ForegroundColor Yellow
+                $chkdskOutput = chkdsk $driveLetter /f
+                Write-Host $chkdskOutput -ForegroundColor Gray
 
-            if ($chkdskOutput -match "errors found") {
-                $issuesFound = $true
-                Write-Host "Issues were found and fixed on $driveLetter" -ForegroundColor Yellow
-            } else {
-                Write-Host "No issues found on $driveLetter" -ForegroundColor Green
+                if ($chkdskOutput -match "errors found") {
+                    $issuesFound = $true
+                    Write-Host "Issues were found and fixed on $driveLetter" -ForegroundColor Yellow
+                } else {
+                    Write-Host "No issues found on $driveLetter" -ForegroundColor Green
+                }
             }
+            catch {
+                Write-Host "Error checking $driveLetter: $($_.Exception.Message)" -ForegroundColor Red
+                $issuesFound = $true
+            }
+        } else {
+            Write-Host "Drive $driveLetter not found" -ForegroundColor Yellow
         }
-        catch {
-            Write-Host "Error checking $driveLetter: $($_.Exception.Message)" -ForegroundColor Red
-            $issuesFound = $true
-        }
-    } else {
-        Write-Host "Drive $driveLetter not found" -ForegroundColor Yellow
     }
 }
 
