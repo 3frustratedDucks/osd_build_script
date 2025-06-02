@@ -164,4 +164,4 @@ if (Test-Path $postBuildSource) {
 Write-Host ""
 Write-Host "OSDCloud deployment complete. Rebooting into OOBE..." -ForegroundColor Green
 
-wpeutil reboot
+wpeutil reboot 
