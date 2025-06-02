@@ -97,7 +97,8 @@ catch {
 # -----------------------------
 # SetupComplete / Post-Build Setup
 # -----------------------------
-Write-Host "`nWaiting for Windows installation to complete..." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Waiting for Windows installation to complete..." -ForegroundColor Yellow
 
 # Wait for C: drive to be accessible
 $maxAttempts = 30
