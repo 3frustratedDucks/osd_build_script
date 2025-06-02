@@ -121,8 +121,8 @@ if (-not $cDriveReady) {
     [void][System.Console]::ReadLine()
     exit
 }
-
-Write-Host "`nCopying SetupComplete.cmd and Post-Build.exe from WinPE (X:)..." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Copying SetupComplete.cmd and Post-Build.exe from WinPE (X:)..." -ForegroundColor Cyan
 
 # Source from WinPE (RAMDisk)
 $osdCloudSource      = "X:\OSDCloud"
