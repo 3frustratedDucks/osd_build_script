@@ -122,6 +122,7 @@ if (-not $cDriveReady) {
     [void][System.Console]::ReadLine()
     exit
 }
+
 Write-Host ""
 Write-Host "Copying SetupComplete.cmd and Post-Build.exe from WinPE (X:)..." -ForegroundColor Cyan
 
