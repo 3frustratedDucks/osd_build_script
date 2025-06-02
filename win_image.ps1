@@ -189,6 +189,31 @@ catch {
 # -----------------------------
 # SetupComplete / Post-Build Setup
 # -----------------------------
+Write-Host "`nWaiting for Windows installation to complete..." -ForegroundColor Yellow
+
+# Wait for C: drive to be accessible
+$maxAttempts = 30
+$attempt = 0
+$cDriveReady = $false
+
+while (-not $cDriveReady -and $attempt -lt $maxAttempts) {
+    $attempt++
+    Write-Host "Attempt $attempt of $maxAttempts to access C: drive..." -ForegroundColor Yellow
+    if (Test-Path "C:\Windows") {
+        $cDriveReady = $true
+        Write-Host "C: drive is now accessible!" -ForegroundColor Green
+    } else {
+        Start-Sleep -Seconds 10
+    }
+}
+
+if (-not $cDriveReady) {
+    Write-Host "ERROR: Could not access C: drive after $maxAttempts attempts!" -ForegroundColor Red
+    Write-Host "Press Enter to exit..."
+    [void][System.Console]::ReadLine()
+    exit
+}
+
 Write-Host "`nCopying SetupComplete.cmd and Post-Build.exe from WinPE (X:)..." -ForegroundColor Cyan
 
 # Source from WinPE (RAMDisk)
