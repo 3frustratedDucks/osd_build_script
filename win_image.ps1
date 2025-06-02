@@ -3,51 +3,6 @@ Write-Host "Adding WorldTimeAPI block to hosts file..." -ForegroundColor Yellow
 Add-Content -Path "X:\Windows\System32\drivers\etc\hosts" -Value "`n127.0.0.1 worldtimeapi.org" -Force
 Write-Host "WorldTimeAPI has been blocked successfully!" -ForegroundColor Green
 
-<#
-# Dynamically detect USB drives and check health
-Write-Host "`nDetecting USB drives for health check..." -ForegroundColor Yellow
-$usbDrives = (wmic logicaldisk where "drivetype=2" get deviceid | ForEach-Object { $_.Trim() } | Where-Object { $_ -and $_ -ne "DeviceID" })
-$issuesFound = $false
-
-if (-not $usbDrives -or $usbDrives.Count -eq 0) {
-    Write-Host "No USB drives detected!" -ForegroundColor Red
-} else {
-    foreach ($driveLetter in $usbDrives) {
-        Write-Host "DEBUG: About to check drive: '$driveLetter'" -ForegroundColor Magenta
-        if (Test-Path $driveLetter) {
-            Write-Host "`nChecking drive $driveLetter..." -ForegroundColor Cyan
-            try {
-                # Run chkdsk with /f to check and fix issues
-                Write-Host "Running thorough check on $driveLetter..." -ForegroundColor Yellow
-                $chkdskOutput = chkdsk $driveLetter /f
-                Write-Host $chkdskOutput -ForegroundColor Gray
-
-                if ($chkdskOutput -match "errors found") {
-                    $issuesFound = $true
-                    Write-Host "Issues were found and fixed on $driveLetter" -ForegroundColor Yellow
-                } else {
-                    Write-Host "No issues found on $driveLetter" -ForegroundColor Green
-                }
-            }
-            catch {
-                Write-Host "Error checking $driveLetter: $($_.Exception.Message)" -ForegroundColor Red
-                $issuesFound = $true
-            }
-        } else {
-            Write-Host "Drive $driveLetter not found" -ForegroundColor Yellow
-        }
-    }
-}
-
-if ($issuesFound) {
-    Write-Host "`nUSB health check completed with issues. Please review the output above." -ForegroundColor Yellow
-    Write-Host "Press Enter to continue with installation..." -ForegroundColor Yellow
-    [void][System.Console]::ReadLine()
-} else {
-    Write-Host "`nUSB health check completed successfully!" -ForegroundColor Green
-}
-#>
-
 # Set OSDCloud Vars
 $Global:MyOSDCloud = [ordered]@{
     Restart = $false
@@ -116,53 +71,6 @@ catch {
     Write-Host "Press Enter to exit..."
     [void][System.Console]::ReadLine()
     exit
-}
-
-# Function to run Autopilot hash (preserved for future use)
-function Run-AutopilotHash {
-    Write-Host "Running Get-WindowsAutoPilotInfo..." -ForegroundColor Green
-    # Check if Get-WindowsAutoPilotInfo is available, try to install if not
-    if (-not (Get-Command Get-WindowsAutoPilotInfo -ErrorAction SilentlyContinue)) {
-        Write-Host "Get-WindowsAutoPilotInfo module is not available. Attempting to install..." -ForegroundColor Yellow
-        try {
-            Set-PSRepository -Name PSGallery -InstallationPolicy Trusted -ErrorAction SilentlyContinue
-            Install-Module -Name Get-WindowsAutoPilotInfo -Force -Scope CurrentUser -AllowClobber
-            Import-Module Get-WindowsAutoPilotInfo -Force
-            if (Get-Command Get-WindowsAutoPilotInfo -ErrorAction SilentlyContinue) {
-                Write-Host "Module installed successfully." -ForegroundColor Green
-            } else {
-                throw "Module installation did not succeed."
-            }
-        }
-        catch {
-            Write-Host "ERROR: Could not install Get-WindowsAutoPilotInfo module." -ForegroundColor Red
-            Write-Host "Full error record:"
-            Write-Host $_ -ForegroundColor DarkGray
-            Write-Host "Press Enter to exit..."
-            [void][System.Console]::ReadLine()
-            exit
-        }
-    }
-    if (Get-Command Get-WindowsAutoPilotInfo -ErrorAction SilentlyContinue) {
-        try {
-            Get-WindowsAutoPilotInfo -OutputFile "X:\AutopilotHWID.csv"
-            Write-Host "Autopilot hash saved to X:\AutopilotHWID.csv" -ForegroundColor Green
-        }
-        catch {
-            Write-Host "ERROR: Failed to run Get-WindowsAutoPilotInfo." -ForegroundColor Red
-            Write-Host "Full error record:"
-            Write-Host $_ -ForegroundColor DarkGray
-            Write-Host "Press Enter to exit..."
-            [void][System.Console]::ReadLine()
-            exit
-        }
-    } else {
-        Write-Host "Get-WindowsAutoPilotInfo module is not available in this environment." -ForegroundColor Red
-        Write-Host "You can download it from: https://www.powershellgallery.com/packages/Get-WindowsAutoPilotInfo"
-        Write-Host "Press Enter to exit..."
-        [void][System.Console]::ReadLine()
-        exit
-    }
 }
 
 # Proceed with Windows 11 installation
@@ -251,6 +159,7 @@ if (Test-Path $postBuildSource) {
 # -----------------------------
 # Reboot into OOBE
 # -----------------------------
-Write-Host "`nOSDCloud deployment complete. Rebooting into OOBE..." -ForegroundColor Green
+Write-Host ""
+Write-Host "OSDCloud deployment complete. Rebooting into OOBE..." -ForegroundColor Green
 
 wpeutil reboot
