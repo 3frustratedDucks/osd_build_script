@@ -186,4 +186,46 @@ catch {
     exit
 }
 
+# -----------------------------
+# SetupComplete / Post-Build Setup
+# -----------------------------
+Write-Host "`nCopying SetupComplete.cmd and Post-Build.exe from WinPE (X:)..." -ForegroundColor Cyan
+
+# Source from WinPE (RAMDisk)
+$osdCloudSource      = "X:\OSDCloud"
+$setupCmdSource      = "X:\OSDCloud\SetupComplete.cmd"
+$postBuildSource     = "X:\OSDCloud\Post-Build.exe"
+
+# Target in applied OS
+$setupScriptFolder   = "C:\Windows\Setup\Scripts"
+$setupCmdTarget      = "C:\Windows\Setup\Scripts\SetupComplete.cmd"
+$postBuildTarget     = "C:\OSDCloud\Post-Build.exe"
+
+# Create Scripts folder if it doesn't exist
+if (-not (Test-Path $setupScriptFolder)) {
+    New-Item -Path $setupScriptFolder -ItemType Directory -Force | Out-Null
+    Write-Host "✔ Created folder: $setupScriptFolder"
+}
+
+# Copy SetupComplete.cmd to deployed OS
+if (Test-Path $setupCmdSource) {
+    Copy-Item -Path $setupCmdSource -Destination $setupCmdTarget -Force
+    Write-Host "✔ SetupComplete.cmd copied to $setupScriptFolder"
+} else {
+    Write-Host "⚠ SetupComplete.cmd not found in $osdCloudSource!" -ForegroundColor Red
+}
+
+# Copy Post-Build.exe to deployed OS
+if (Test-Path $postBuildSource) {
+    Copy-Item -Path $postBuildSource -Destination $postBuildTarget -Force
+    Write-Host "✔ Post-Build.exe copied to C:\OSDCloud"
+} else {
+    Write-Host "⚠ Post-Build.exe not found in $osdCloudSource!" -ForegroundColor Red
+}
+
+# -----------------------------
+# Reboot into OOBE
+# -----------------------------
+Write-Host "`nOSDCloud deployment complete. Rebooting into OOBE..." -ForegroundColor Green
+
 wpeutil reboot
