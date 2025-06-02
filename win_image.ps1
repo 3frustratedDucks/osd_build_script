@@ -139,23 +139,23 @@ $postBuildTarget     = "C:\OSDCloud\Post-Build.exe"
 # Create Scripts folder if it doesn't exist
 if (-not (Test-Path $setupScriptFolder)) {
     New-Item -Path $setupScriptFolder -ItemType Directory -Force | Out-Null
-    Write-Host "✔ Created folder: $setupScriptFolder"
+    Write-Host "SUCCESS:Created folder: $setupScriptFolder"
 }
 
 # Copy SetupComplete.cmd to deployed OS
 if (Test-Path $setupCmdSource) {
     Copy-Item -Path $setupCmdSource -Destination $setupCmdTarget -Force
-    Write-Host "✔ SetupComplete.cmd copied to $setupScriptFolder"
+    Write-Host "SUCCESS: SetupComplete.cmd copied to $setupScriptFolder"
 } else {
-    Write-Host "⚠ SetupComplete.cmd not found in $osdCloudSource!" -ForegroundColor Red
+    Write-Host "FAILURE: SetupComplete.cmd not found in $osdCloudSource!" -ForegroundColor Red
 }
 
 # Copy Post-Build.exe to deployed OS
 if (Test-Path $postBuildSource) {
     Copy-Item -Path $postBuildSource -Destination $postBuildTarget -Force
-    Write-Host "✔ Post-Build.exe copied to C:\OSDCloud"
+    Write-Host "SUCCESS: Post-Build.exe copied to C:\OSDCloud"
 } else {
-    Write-Host "⚠ Post-Build.exe not found in $osdCloudSource!" -ForegroundColor Red
+    Write-Host "FAILURE:Post-Build.exe not found in $osdCloudSource!" -ForegroundColor Red
 }
 
 # -----------------------------
