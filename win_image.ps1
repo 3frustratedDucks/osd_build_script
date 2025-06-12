@@ -43,7 +43,7 @@ Write-Host ".................................................." -ForegroundColor
 try {
     $mem = (Get-CimInstance -ClassName Win32_ComputerSystem).TotalPhysicalMemory / 1GB
     $mem = [math]::Round($mem, 1)
-    if ($mem -lt 31.5) {  # Allowing for slight reporting variance
+    if ($mem -lt 28) {  # Allowing for slight reporting variance
         Write-Host "WARNING: This device has only $mem GB of RAM. 32GB is expected!" -ForegroundColor Red
         Write-Host "This may mean a memory module is missing or not seated correctly."
         Write-Host ""
